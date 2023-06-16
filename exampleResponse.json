@@ -1,0 +1,29 @@
+{
+  "chordProgression": [
+    {
+      "root": "C",
+      "suffix": "",
+      "function": "tonic"
+    },
+    {
+      "root": "D",
+      "suffix": "m7",
+      "function": "subdominant"
+    },
+    {
+      "root": "E",
+      "suffix": "m",
+      "function": "mediant"
+    },
+    {
+      "root": "F",
+      "suffix": "maj9",
+      "function": "subdominant"
+    },
+    {
+      "root": "G",
+      "suffix": "13",
+      "function": "dominant"
+    }
+  ]
+}
