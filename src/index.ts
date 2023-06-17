@@ -12,7 +12,7 @@ import {
 import "sqlite3";
 
 const app = express();
-const port = 8080; // default port to listen
+const port: number = 8080; // default port to listen
 
 // api routes
 app.get("/api/progression", getProgression);
