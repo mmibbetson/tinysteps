@@ -1,7 +1,7 @@
 # tinysteps
 
-chord progression generator API and Webapp using Gin and React
-currently only planning to generate major and minor scales with extensions
+chord progression generator API and Webapp using Express and React.
+Currently only planning to generate major and minor scales with extensions
 up to thirteenth, by thirds. May consider adding sus chords and modes, etc.
 in the future
 
@@ -23,24 +23,19 @@ of the tool I will implement it
 - GET: returns a randomly generated chord progression as JSON
   - Query Parameters: root, quality, extension, length
   - Param Defaults: C, major, triad, 4
+- POST: ...
 
-### /api/songbook
+### /api/progression/:id
 
 - GET: returns all saved progressions for a user as JSON
 - POST: saves a progression in JSON format to their songbook
 
-### /api/songbook:id
+### /api/progression/:user
 
 - GET: returns a specific progression as JSON from a songbook
 
-### /api/account/register
+### /api/user
 
 - POST:
-
-### /api/account/delete
-
-- DELETE:
-
-## /api/account/password
-
 - PATCH:
+- DELETE:
