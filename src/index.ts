@@ -16,8 +16,8 @@ const port: number = 8080; // default port to listen
 
 // api routes
 app.get("/api/progression", getProgression);
-app.get("/api/progression/:id", getProgressionByID);
-app.get("/api/progression/:user", getProgressionByUser);
+app.get("/api/progression/id/id", getProgressionByID);
+app.get("/api/progression/user/:user", getProgressionByUser);
 app.post("/api/progression", postProgression);
 app.delete("/api/progression", deleteProgression);
 app.post("/api/user", postUser);

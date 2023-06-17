@@ -7,7 +7,7 @@ in the future
 
 ## Authentication
 
-Basic auth with username:password accounts in gin.
+Basic auth with username:password accounts in express.
 http for now, perhaps when getting hosting done I can
 get https certs and set that up?
 
@@ -25,12 +25,12 @@ of the tool I will implement it
   - Param Defaults: C, major, triad, 4
 - POST: ...
 
-### /api/progression/:id
+### /api/progression/id/:id
 
 - GET: returns all saved progressions for a user as JSON
 - POST: saves a progression in JSON format to their songbook
 
-### /api/progression/:user
+### /api/progression/id/:user
 
 - GET: returns a specific progression as JSON from a songbook
 
