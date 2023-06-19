@@ -2,7 +2,7 @@ export interface Progression {
   id: number;
   userId: number;
   name: string;
-  body: string;
+  body: [];
 }
 
 export interface User {
