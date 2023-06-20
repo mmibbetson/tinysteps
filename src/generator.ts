@@ -10,6 +10,12 @@ import { Progression } from "./models.js";
         - Should end on Tonic
         - Should be exactly correct size
         - Should move between chords according to function
+
+    3. Populate the pattern:
+        - Acquire the applicable chords via SQL query
+        - Pick candidates for each position and build new array
+
+    4. Return the progression body array
 */
 
 export function generateProgressionBody(
@@ -23,6 +29,7 @@ export function generateProgressionBody(
   return [];
 }
 
+// Will generate a pattern to then be populated by chords whose functions fit
 function createPattern(len: number): string[] {
   let pattern: string[] = ["tonic"];
 
@@ -62,3 +69,9 @@ function getPrevFunction(func: string): string {
       throw new Error("Unexpected error generating pattern");
   }
 }
+
+function acquireChords(
+  root: string,
+  quality: string,
+  extension: string
+): string[] {}
