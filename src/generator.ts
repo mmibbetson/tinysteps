@@ -131,6 +131,10 @@ function populateBody(pattern: string[], chords: Chord[]): Chord[] {
 
 function selectRandomChord(chords: Chord[], func: string): Chord {
   // filter down to only those chords whose functions match func
+  chords = chords.filter((chord) => chord.function === func);
   // randomly select a chord from that array
+  const randIndex = Math.floor(Math.random() * chords.length);
+  const chord = chords[randIndex];
   // return said chord
+  return chord;
 }
