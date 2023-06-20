@@ -1,5 +1,7 @@
 import { error } from "console";
-import { Progression } from "./models.js";
+import { Chord, Progression } from "./models.js";
+import { db } from "./handlers.js";
+import { Extension } from "typescript";
 
 /*
     What does the generator need to do?
@@ -25,6 +27,7 @@ export function generateProgressionBody(
   length: number = 4
 ): Progression["body"] {
   const pattern = createPattern(length);
+  const chords = acquireChords(root, quality, extension);
 
   return [];
 }
@@ -74,4 +77,32 @@ function acquireChords(
   root: string,
   quality: string,
   extension: string
-): string[] {}
+): Promise<Chord[]> {
+  return new Promise((resolve, reject) => {
+    db.all(
+      "SELECT root, suffix, function FROM chord WHERE music_key_id IN (SELECT id FROM music_key WHERE root = ? && quality = ?)",
+      root,
+      quality,
+      (err: any, rows: Chord[]) => {
+        if (err) {
+          console.error("Query failure:", err);
+          reject(err);
+        }
+
+        const outputChords = filterChords(
+          rows,
+          Extension[extension as keyof typeof Extension]
+        );
+
+        resolve(outputChords);
+      }
+    );
+  });
+}
+
+function filterChords(chords: Chord[], ext: Extension): Chord[] {
+  return chords.filter((chord: Chord) => {
+    const chordEnumValue = Extension[chord.extension as keyof typeof Extension];
+    return chordEnumValue >= ext;
+  });
+}
