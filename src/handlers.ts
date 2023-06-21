@@ -17,7 +17,14 @@ export async function getProgression(
     parseInt(lengthVal?.toString())
   );
 
-  console.log(body);
+  let newProgression = {
+    id: 0,
+    user: 0,
+    name: "test",
+    body: body,
+  };
+
+  console.log(newProgression);
 }
 
 export function getProgressionByID(req: Request, res: Response): void {

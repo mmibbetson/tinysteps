@@ -36,7 +36,16 @@ export async function generateProgressionBody(
   } catch (error) {
     console.log(error);
 
-    return [];
+    return [
+      {
+        id: 0,
+        musicKeyId: 0,
+        root: "C",
+        suffix: "maj",
+        function: "tonic",
+        extension: "triad",
+      },
+    ];
   }
 }
 
@@ -89,7 +98,7 @@ async function acquireChords(
 ): Promise<Chord[]> {
   return new Promise((resolve, reject) => {
     db.all(
-      "SELECT * FROM chord WHERE music_key_id IN (SELECT id FROM music_key WHERE root = ? & quality = ?)",
+      "SELECT * FROM chord WHERE music_key_id IN (SELECT id FROM music_key WHERE root = ? AND quality = ?)",
       root,
       quality,
       (err: any, rows: Chord[]) => {
@@ -102,6 +111,8 @@ async function acquireChords(
           rows,
           ChordExtension[extension as keyof typeof ChordExtension]
         );
+
+        console.log(`output chords of filterchords func: ${outputChords}`); // TODO: Remove
 
         resolve(outputChords);
       }
