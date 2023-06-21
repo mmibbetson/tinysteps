@@ -51,6 +51,7 @@ function createPattern(len: number): string[] {
   return pattern;
 }
 
+// TODO: Refactor this, not very DRY
 // Use weighted random generation to select which chord function should have
 // come before the current one
 function getPrevFunction(func: string): string {
@@ -108,10 +109,11 @@ async function acquireChords(
   });
 }
 
+// Filters chords to only include candidates whose extension is at the requested level or lower
 function filterChords(chords: Chord[], ext: Extension): Chord[] {
   return chords.filter((chord: Chord) => {
     const chordEnumValue = Extension[chord.extension as keyof typeof Extension];
-    return chordEnumValue >= ext;
+    return chordEnumValue <= ext;
   });
 }
 
