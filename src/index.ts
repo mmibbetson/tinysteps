@@ -62,5 +62,3 @@ app.delete("/api/user", deleteUser);
 app.listen(port, () => {
   console.log(`server started at http://localhost:${port}`);
 });
-
-db.close();
