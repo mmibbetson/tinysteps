@@ -11,10 +11,17 @@ import {
 } from "./handlers.js";
 import sqlite3 from "sqlite3";
 import { type } from "os";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const app = express();
 const port: number = 8080; // default port to listen
-export const db = new sqlite3.Database("../tinysteps.db", (err) => {
+
+// db access, first get the path to the db and then open it
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const dbPath = __dirname + "/../db/tinysteps.db";
+export const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error(err.message);
   }
