@@ -1,10 +1,20 @@
 import { Request, Response } from "express";
-import sqlite3 from "sqlite3";
-
-export const db = new sqlite3.Database("./db/chord.db");
+import { generateProgressionBody } from "./generator.js";
+import { db } from "./index.js";
 
 export function getProgression(req: Request, res: Response): void {
-  res.send("Hello progression!\n");
+  const rootVal = req.query.root ? req.query.root : "C";
+  const qualityVal = req.query.quality ? req.query.quality : "major";
+  const extensionVal = req.query.extension ? req.query.extension : "triad";
+  const lengthVal = req.query.length ? req.query.length : 4;
+  const body = generateProgressionBody(
+    rootVal?.toString(),
+    qualityVal?.toString(),
+    extensionVal?.toString(),
+    parseInt(lengthVal?.toString())
+  );
+
+  res.send(body);
 }
 
 export function getProgressionByID(req: Request, res: Response): void {

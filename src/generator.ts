@@ -1,7 +1,6 @@
 import { error } from "console";
-import { Chord, Progression } from "./models.js";
-import { db } from "./handlers.js";
-import { Extension } from "typescript";
+import { Chord, ChordExtension, Progression } from "./models.js";
+import { db } from "./index.js";
 
 /*
     What does the generator need to do?
@@ -20,6 +19,7 @@ import { Extension } from "typescript";
     4. Return the progression body array
 */
 
+// Generate the body field, which is an array of chords
 export async function generateProgressionBody(
   root: string = "C",
   quality: string = "major",
@@ -89,7 +89,7 @@ async function acquireChords(
 ): Promise<Chord[]> {
   return new Promise((resolve, reject) => {
     db.all(
-      "SELECT * FROM chord WHERE music_key_id IN (SELECT id FROM music_key WHERE root = ? && quality = ?)",
+      "SELECT * FROM chord WHERE music_key_id IN (SELECT id FROM music_key WHERE root = ? & quality = ?)",
       root,
       quality,
       (err: any, rows: Chord[]) => {
@@ -100,7 +100,7 @@ async function acquireChords(
 
         const outputChords = filterChords(
           rows,
-          Extension[extension as keyof typeof Extension]
+          ChordExtension[extension as keyof typeof ChordExtension]
         );
 
         resolve(outputChords);
@@ -110,9 +110,10 @@ async function acquireChords(
 }
 
 // Filters chords to only include candidates whose extension is at the requested level or lower
-function filterChords(chords: Chord[], ext: Extension): Chord[] {
+function filterChords(chords: Chord[], ext: ChordExtension): Chord[] {
   return chords.filter((chord: Chord) => {
-    const chordEnumValue = Extension[chord.extension as keyof typeof Extension];
+    const chordEnumValue =
+      ChordExtension[chord.extension as keyof typeof ChordExtension];
     return chordEnumValue <= ext;
   });
 }
