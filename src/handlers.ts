@@ -24,7 +24,7 @@ export async function getProgression(
     body: body,
   };
 
-  console.log(newProgression);
+  res.json(newProgression);
 }
 
 export function getProgressionByID(req: Request, res: Response): void {

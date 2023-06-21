@@ -1,4 +1,3 @@
-import { error } from "console";
 import { Chord, ChordExtension, Progression } from "./models.js";
 import { db } from "./index.js";
 
@@ -112,14 +111,13 @@ async function acquireChords(
           ChordExtension[extension as keyof typeof ChordExtension]
         );
 
-        console.log(`output chords of filterchords func: ${outputChords}`); // TODO: Remove
-
         resolve(outputChords);
       }
     );
   });
 }
 
+// TODO: Fix this, seems to only be returning triads
 // Filters chords to only include candidates whose extension is at the requested level or lower
 function filterChords(chords: Chord[], ext: ChordExtension): Chord[] {
   return chords.filter((chord: Chord) => {

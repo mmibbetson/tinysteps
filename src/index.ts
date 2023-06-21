@@ -10,7 +10,6 @@ import {
   deleteUser,
 } from "./handlers.js";
 import sqlite3 from "sqlite3";
-import { type } from "os";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
