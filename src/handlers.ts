@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { generateProgressionBody } from "./generator.js";
 import { db } from "./index.js";
 
+// NOTE: rootVal and qualityVal are being registered correctl
+// NOTE: extensionVal and lengthVal seem to always default to triad and 4
 export async function getProgression(
   req: Request,
   res: Response
