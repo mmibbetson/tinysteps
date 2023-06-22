@@ -14,6 +14,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 
 const app = express();
+app.set("json spaces", 2); // Pretty-print JSON
 const port: number = 8080; // default port to listen
 
 // db access, first get the path to the db and then open it
