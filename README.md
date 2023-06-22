@@ -22,7 +22,7 @@ of the tool I will implement it
 
 - GET: returns a randomly generated chord progression as JSON
   - Query Parameters: root, quality, extension, length
-  - Param Defaults: C, major, triad, 4
+  - Param Defaults: C, major, triad, 4 //NOTE: when supplying a sharpened root, use %23 instead of #
 - POST: ...
 
 ### /api/progression/id/:id

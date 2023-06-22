@@ -26,23 +26,6 @@ export const db = new sqlite3.Database(dbPath, (err) => {
     console.error(err.message);
   }
   console.log("Connected to the tinysteps database.");
-
-  // Execute a SQL query to retrieve all table names from the connected database
-  db.all(
-    "SELECT name FROM sqlite_master WHERE type='table'",
-    (error, rows: { name: string }[]) => {
-      if (error) {
-        console.error("Error retrieving table names:", error.message);
-        // Handle the error appropriately
-      } else {
-        // Extract table names from the result rows
-        const tableNames = rows.map((row) => row.name);
-
-        console.log("Tables in the database:", tableNames);
-        // Log or process the table names as needed
-      }
-    }
-  );
 });
 
 // API routes

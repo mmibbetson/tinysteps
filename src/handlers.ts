@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { generateProgressionBody } from "./generator.js";
 import { db } from "./index.js";
+import { hashPassword } from "./encryption.js";
 
 // TODO: Add some documentation for this stuff
 export async function getProgression(
@@ -21,7 +22,10 @@ export async function getProgression(
   res.json(body);
 }
 
-export function getProgressionByID(req: Request, res: Response): void {
+export async function getProgressionByID(
+  req: Request,
+  res: Response
+): Promise<void> {
   db.get(
     "SELECT * FROM progression WHERE id = ?",
     req.params.id,
@@ -38,7 +42,10 @@ export function getProgressionByID(req: Request, res: Response): void {
   );
 }
 
-export function getProgressionByUser(req: Request, res: Response): void {
+export async function getProgressionByUser(
+  req: Request,
+  res: Response
+): Promise<void> {
   db.serialize(() => {
     db.all(
       "SELECT * FROM progression WHERE user = ?",
@@ -57,22 +64,35 @@ export function getProgressionByUser(req: Request, res: Response): void {
   });
 }
 
-export function postProgression(req: Request, res: Response): void {
+export async function postProgression(
+  req: Request,
+  res: Response
+): Promise<void> {
   res.send("Hello new progression!\n");
 }
 
-export function deleteProgression(req: Request, res: Response): void {
+export async function deleteProgression(
+  req: Request,
+  res: Response
+): Promise<void> {
   res.send("Goodbye progression!\n");
 }
 
-export function postUser(req: Request, res: Response): void {
-  res.send("Hello register!\n");
+export async function postUser(req: Request, res: Response): Promise<void> {
+  // set constraints on username and password before running this
+
+  db.run("INSERT INTO user (username, password) VALUES (?, ?)", [
+    req.body.username,
+    hashPassword(req.body.password),
+  ]);
+
+  res.send("Hello new user!\n");
 }
 
-export function patchUser(req: Request, res: Response): void {
+export async function patchUser(req: Request, res: Response): Promise<void> {
   res.send("Hello update!\n");
 }
 
-export function deleteUser(req: Request, res: Response): void {
+export async function deleteUser(req: Request, res: Response): Promise<void> {
   res.send("Goodbye user!\n");
 }
