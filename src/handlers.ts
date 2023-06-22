@@ -2,6 +2,11 @@ import { Request, Response } from "express";
 import { generateProgressionBody } from "./generator.js";
 import { db } from "./index.js";
 import { hashPassword } from "./encryption.js";
+import {
+  checkUserIsTaken,
+  validatePassword,
+  validateUsername,
+} from "./user-validation.js";
 
 // TODO: Add some documentation for this stuff
 export async function getProgression(
@@ -19,7 +24,7 @@ export async function getProgression(
     parseInt(<string>lengthVal)
   );
 
-  res.json(body);
+  res.status(200).json(body);
 }
 
 export async function getProgressionByID(
@@ -36,7 +41,7 @@ export async function getProgressionByID(
       }
 
       if (row) {
-        res.json(row);
+        res.status(200).json(row);
       }
     }
   );
@@ -57,7 +62,7 @@ export async function getProgressionByUser(
         }
 
         if (rows) {
-          res.json(rows);
+          res.status(200).json(rows);
         }
       }
     );
@@ -79,14 +84,43 @@ export async function deleteProgression(
 }
 
 export async function postUser(req: Request, res: Response): Promise<void> {
-  // set constraints on username and password before running this
+  // Check that the username and password are valid first
+  const usernameValidationResult = validateUsername(req.body.username);
+  const passwordValidationResult = validatePassword(req.body.password);
+
+  if (!usernameValidationResult.valid) {
+    res
+      .status(400)
+      .send(
+        "Invalid username, ensure it is between 8 and 24 characters long and contains only letters and numbers\n"
+      );
+  }
+
+  if (!passwordValidationResult.valid) {
+    res
+      .status(400)
+      .send(
+        "Invalid password, ensure it is between 8 and 24 characters long\n"
+      );
+  }
+
+  // Check that the username is not already taken
+  const userIsTaken = await checkUserIsTaken(req.body.username);
+  if (userIsTaken) {
+    res.status(400).send("Username is already taken\n");
+  }
+
+  // username and password are guaranteed not null due to validation
+  // if we reach this point in the code
+  const username = usernameValidationResult.value;
+  const password = passwordValidationResult.value;
 
   db.run("INSERT INTO user (username, password) VALUES (?, ?)", [
-    req.body.username,
-    hashPassword(req.body.password),
+    username,
+    hashPassword(password!),
   ]);
 
-  res.send("Hello new user!\n");
+  res.status(201).send("New user account successfully created\n");
 }
 
 export async function patchUser(req: Request, res: Response): Promise<void> {
