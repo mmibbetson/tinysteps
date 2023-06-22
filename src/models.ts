@@ -12,8 +12,6 @@ export interface User {
 }
 
 export interface Chord {
-  id: number;
-  musicKeyId: number;
   root: string;
   suffix: string;
   function: string;
@@ -21,7 +19,6 @@ export interface Chord {
 }
 
 export interface MusicKey {
-  id: number;
   root: string;
   quality: string;
 }

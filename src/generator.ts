@@ -37,8 +37,6 @@ export async function generateProgressionBody(
 
     return [
       {
-        id: 0,
-        musicKeyId: 0,
         root: "C",
         suffix: "maj",
         function: "tonic",
@@ -97,7 +95,7 @@ async function acquireChords(
 ): Promise<Chord[]> {
   return new Promise((resolve, reject) => {
     db.all(
-      "SELECT * FROM chord WHERE music_key_id IN (SELECT id FROM music_key WHERE root = ? AND quality = ?)",
+      "SELECT root, suffix, function, extension FROM chord WHERE music_key_id IN (SELECT id FROM music_key WHERE root = ? AND quality = ?)",
       root,
       quality,
       (err: any, rows: Chord[]) => {
