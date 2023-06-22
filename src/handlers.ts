@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { generateProgressionBody } from "./generator.js";
 import { db } from "./index.js";
 
-// NOTE: rootVal and qualityVal are being registered correctl
+// NOTE: rootVal and qualityVal are being registered correctly
 // NOTE: extensionVal and lengthVal seem to always default to triad and 4
 export async function getProgression(
   req: Request,
@@ -11,22 +11,15 @@ export async function getProgression(
   const rootVal = req.query.root ? req.query.root : "C";
   const qualityVal = req.query.quality ? req.query.quality : "major";
   const extensionVal = req.query.extension ? req.query.extension : "triad";
-  const lengthVal = req.query.length ? req.query.length : 4;
+  const lengthVal = req.query.length ? req.query.length : "4";
   const body = await generateProgressionBody(
     rootVal?.toString(),
     qualityVal?.toString(),
     extensionVal?.toString(),
-    parseInt(lengthVal?.toString())
+    parseInt(<string>lengthVal)
   );
 
-  let newProgression = {
-    id: 0,
-    user: 0,
-    name: "test",
-    body: body,
-  };
-
-  res.json(newProgression);
+  res.json(body);
 }
 
 export function getProgressionByID(req: Request, res: Response): void {
