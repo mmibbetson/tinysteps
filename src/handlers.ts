@@ -3,9 +3,9 @@ import { generateProgressionBody } from "./generator.js";
 import { db } from "./index.js";
 import { hashPassword } from "./encryption.js";
 import {
-  checkUserIsTaken,
-  validatePassword,
-  validateUsername,
+  passwordIsValid,
+  userIsTaken,
+  usernameIsValid,
 } from "./user-validation.js";
 
 // TODO: Add some documentation for this stuff
@@ -22,7 +22,13 @@ export async function getProgression(
     qualityVal?.toString(),
     extensionVal?.toString(),
     parseInt(<string>lengthVal)
-  );
+  )
+    .then((body) => body)
+    .catch((err) => {
+      console.error(err);
+
+      res.status(500).send("Internal server error");
+    });
 
   res.status(200).json(body);
 }
@@ -85,10 +91,10 @@ export async function deleteProgression(
 
 export async function postUser(req: Request, res: Response): Promise<void> {
   // Check that the username and password are valid first
-  const usernameValidationResult = validateUsername(req.body.username);
-  const passwordValidationResult = validatePassword(req.body.password);
+  const username = req.body.username;
+  const password = req.body.password;
 
-  if (!usernameValidationResult.valid) {
+  if (!usernameIsValid(username)) {
     res
       .status(400)
       .send(
@@ -96,7 +102,7 @@ export async function postUser(req: Request, res: Response): Promise<void> {
       );
   }
 
-  if (!passwordValidationResult.valid) {
+  if (!passwordIsValid(password)) {
     res
       .status(400)
       .send(
@@ -105,15 +111,9 @@ export async function postUser(req: Request, res: Response): Promise<void> {
   }
 
   // Check that the username is not already taken
-  const userIsTaken = await checkUserIsTaken(req.body.username);
-  if (userIsTaken) {
+  if (await userIsTaken(req.body.username)) {
     res.status(400).send("Username is already taken\n");
   }
-
-  // username and password are guaranteed not null due to validation
-  // if we reach this point in the code
-  const username = usernameValidationResult.value;
-  const password = passwordValidationResult.value;
 
   db.run("INSERT INTO user (username, password) VALUES (?, ?)", [
     username,
