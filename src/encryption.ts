@@ -7,6 +7,6 @@ export function hashPassword(password: string): string {
 }
 
 // Need to select the hash from the db and then compare to user provided password
-export function userIsAuthenticated(password: string, hash: string): boolean {
+export function passwordsMatch(password: string, hash: string): boolean {
   return bcrypt.compareSync(password, hash);
 }

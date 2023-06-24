@@ -4,6 +4,7 @@ import { db } from "./index.js";
 import { hashPassword } from "./encryption.js";
 import {
   authenticateUser,
+  parseBasicAuthHeader,
   passwordIsValid,
   usernameIsTaken,
   usernameIsValid,
@@ -125,18 +126,16 @@ export async function postUser(req: Request, res: Response): Promise<void> {
 }
 
 export async function patchUser(req: Request, res: Response): Promise<void> {
-  if (!req.body.username || !req.body.password) {
-    res.status(400).send("Username and password must be provided\n");
+  if (!req.headers.authorization) {
+    res.status(401).send("Authorization header must be provided\n");
   }
 
-  const username: string = req.body.username;
-  const password: string = req.body.password;
+  const credentials = parseBasicAuthHeader(req.headers.authorization!);
 
-  if (await authenticateUser(username, password)) {
-    // Haven't actually run and tested this yet
+  if (await authenticateUser(credentials.username, credentials.password)) {
     db.run("UPDATE user SET password = ? WHERE username = ?", [
       hashPassword(req.body.newPassword),
-      username,
+      credentials.username,
     ]);
 
     res.status(200).send("Password successfully updated\n");
@@ -147,7 +146,4 @@ export async function patchUser(req: Request, res: Response): Promise<void> {
 
 export async function deleteUser(req: Request, res: Response): Promise<void> {
   res.send("Goodbye user!\n");
-}
-function aunthenticateUser(username: any, password: any) {
-  throw new Error("Function not implemented.");
 }

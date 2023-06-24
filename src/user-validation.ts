@@ -1,7 +1,6 @@
 // Implement functions for validating username and password strings
 
-import { Database } from "sqlite3";
-import { userIsAuthenticated } from "./encryption.js";
+import { passwordsMatch } from "./encryption.js";
 import { db } from "./index.js";
 import { User } from "./models.js";
 
@@ -60,11 +59,24 @@ export async function authenticateUser(
         }
 
         if (row && "password" in <User>row) {
-          resolve(userIsAuthenticated(password, (<User>row).password));
+          resolve(passwordsMatch(password, (<User>row).password));
         }
 
         resolve(false);
       }
     );
   });
+}
+
+export function parseBasicAuthHeader(authHeader: string): {
+  username: string;
+  password: string;
+} {
+  const base64Credentials = authHeader.split(" ")[1];
+  const credentials = Buffer.from(base64Credentials, "base64").toString(
+    "ascii"
+  );
+  const [username, password] = credentials.split(":");
+
+  return { username, password };
 }
