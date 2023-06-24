@@ -4,7 +4,7 @@ import { db } from "./index.js";
 import { hashPassword } from "./encryption.js";
 import {
   passwordIsValid,
-  userIsTaken,
+  usernameIsTaken,
   usernameIsValid,
 } from "./user-validation.js";
 
@@ -111,7 +111,7 @@ export async function postUser(req: Request, res: Response): Promise<void> {
   }
 
   // Check that the username is not already taken
-  if (await userIsTaken(req.body.username)) {
+  if (await usernameIsTaken(req.body.username)) {
     res.status(400).send("Username is already taken\n");
   }
 

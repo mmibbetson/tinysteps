@@ -1,6 +1,8 @@
-// Implement functions for validating username and password
+// Implement functions for validating username and password strings
 
+import { userIsAuthenticated } from "./encryption.js";
 import { db } from "./index.js";
+import { User } from "./models.js";
 
 export function usernameIsValid(username: string): boolean {
   // username must be between 4 and 20 characters
@@ -31,7 +33,7 @@ export function passwordIsValid(password: string): boolean {
 }
 
 // check if username exists in db, if so return true, else return false
-export async function userIsTaken(username: string): Promise<boolean> {
+export async function usernameIsTaken(username: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
     db.get("SELECT * FROM user WHERE username = ?", username, (err, row) => {
       if (err) {
@@ -39,6 +41,25 @@ export async function userIsTaken(username: string): Promise<boolean> {
       }
 
       resolve(row !== undefined);
+    });
+  });
+}
+
+export async function authenticateUser(
+  username: string,
+  password: string
+): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    db.get("SELECT * FROM user WHERE username = ?", username, (err, row) => {
+      if (err) {
+        reject(err);
+      }
+
+      if (row && "password" in <Object>row) {
+        resolve(userIsAuthenticated(password, <Object>row.password));
+      }
+
+      resolve(false);
     });
   });
 }
