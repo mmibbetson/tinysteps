@@ -145,5 +145,17 @@ export async function patchUser(req: Request, res: Response): Promise<void> {
 }
 
 export async function deleteUser(req: Request, res: Response): Promise<void> {
-  res.send("Goodbye user!\n");
+  if (!req.headers.authorization) {
+    res.status(401).send("Authorization header must be provided\n");
+  }
+
+  const credentials = parseBasicAuthHeader(req.headers.authorization!);
+
+  if (await authenticateUser(credentials.username, credentials.password)) {
+    db.run("DELETE FROM user WHERE username = ?", [credentials.username]);
+
+    res.status(200).send("User successfully deleted\n");
+  } else {
+    res.status(401).send("Invalid username or password\n");
+  }
 }
