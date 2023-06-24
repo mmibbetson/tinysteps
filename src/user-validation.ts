@@ -60,7 +60,6 @@ export async function authenticateUser(
         }
 
         if (row && "password" in <User>row) {
-          console.log((<User>row).password);
           resolve(userIsAuthenticated(password, (<User>row).password));
         }
 

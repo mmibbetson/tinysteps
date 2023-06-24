@@ -13,6 +13,11 @@ import sqlite3 from "sqlite3";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
+/*
+  TODO: Check EVERY error case and make sure it's handled properly,
+  right now there are a lot of cases where the server will crash
+*/
+
 const app = express();
 app.set("json spaces", 2); // Pretty-print JSON
 app.use(express.json()); // Parse JSON bodies

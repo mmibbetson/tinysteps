@@ -133,7 +133,13 @@ export async function patchUser(req: Request, res: Response): Promise<void> {
   const password: string = req.body.password;
 
   if (await authenticateUser(username, password)) {
-    res.status(200).send("Hello update!\n");
+    // Haven't actually run and tested this yet
+    db.run("UPDATE user SET password = ? WHERE username = ?", [
+      hashPassword(req.body.newPassword),
+      username,
+    ]);
+
+    res.status(200).send("Password successfully updated\n");
   } else {
     res.status(401).send("Invalid username or password\n");
   }
