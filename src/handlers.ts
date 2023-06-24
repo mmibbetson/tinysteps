@@ -15,24 +15,34 @@ export async function getProgression(
   req: Request,
   res: Response
 ): Promise<void> {
-  const rootVal = req.query.root ? req.query.root : "C";
-  const qualityVal = req.query.quality ? req.query.quality : "major";
-  const extensionVal = req.query.extension ? req.query.extension : "triad";
-  const lengthVal = req.query.length ? req.query.length : "4";
-  const body = await generateProgressionBody(
-    rootVal?.toString(),
-    qualityVal?.toString(),
-    extensionVal?.toString(),
-    parseInt(<string>lengthVal)
-  )
-    .then((body) => body)
-    .catch((err) => {
-      console.error(err);
+  if (!req.headers.authorization) {
+    res.status(401).send("Unauthorized");
+  }
 
-      res.status(500).send("Internal server error");
-    });
+  const credentials = parseBasicAuthHeader(req.headers.authorization!);
 
-  res.status(200).json(body);
+  if (await authenticateUser(credentials.username, credentials.password)) {
+    const rootVal = req.query.root ? req.query.root : "C";
+    const qualityVal = req.query.quality ? req.query.quality : "major";
+    const extensionVal = req.query.extension ? req.query.extension : "triad";
+    const lengthVal = req.query.length ? req.query.length : "4";
+    const body = await generateProgressionBody(
+      rootVal?.toString(),
+      qualityVal?.toString(),
+      extensionVal?.toString(),
+      parseInt(<string>lengthVal)
+    )
+      .then((body) => body)
+      .catch((err) => {
+        console.error(err);
+
+        res.status(500).send("Internal server error");
+      });
+
+    res.status(200).json(body);
+  } else {
+    res.status(401).send("Unauthorized");
+  }
 }
 
 export async function getProgressionByID(
@@ -59,22 +69,32 @@ export async function getProgressionByUser(
   req: Request,
   res: Response
 ): Promise<void> {
-  db.serialize(() => {
-    db.all(
-      "SELECT * FROM progression WHERE user = ?",
-      req.params.user,
-      (err, rows) => {
-        if (err) {
-          console.error("Query failure:", err);
-          res.status(500).send("Query failure");
-        }
+  if (!req.headers.authorization) {
+    res.status(401).send("Unauthorized");
+  }
 
-        if (rows) {
-          res.status(200).json(rows);
+  const credentials = parseBasicAuthHeader(req.headers.authorization!);
+
+  if (await authenticateUser(credentials.username, credentials.password)) {
+    db.serialize(() => {
+      db.all(
+        "SELECT name, body FROM progression WHERE user = ?",
+        credentials.username,
+        (err, rows) => {
+          if (err) {
+            console.error("Query failure:", err);
+            res.status(500).send("Query failure");
+          }
+
+          if (rows) {
+            res.status(200).json(rows);
+          }
         }
-      }
-    );
-  });
+      );
+    });
+  } else {
+    res.status(401).send("Unauthorized");
+  }
 }
 
 export async function postProgression(
@@ -91,6 +111,8 @@ export async function deleteProgression(
   res.send("Goodbye progression!\n");
 }
 
+// This endpoint is exceptional because it does not require authentication
+// Will handle potential insecurities via rate limiting
 export async function postUser(req: Request, res: Response): Promise<void> {
   // Check that the username and password are valid first
   const username = req.body.username;
