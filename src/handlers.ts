@@ -3,6 +3,7 @@ import { generateProgressionBody } from "./generator.js";
 import { db } from "./index.js";
 import { hashPassword } from "./encryption.js";
 import {
+  authenticateUser,
   passwordIsValid,
   usernameIsTaken,
   usernameIsValid,
@@ -124,9 +125,23 @@ export async function postUser(req: Request, res: Response): Promise<void> {
 }
 
 export async function patchUser(req: Request, res: Response): Promise<void> {
-  res.send("Hello update!\n");
+  if (!req.body.username || !req.body.password) {
+    res.status(400).send("Username and password must be provided\n");
+  }
+
+  const username: string = req.body.username;
+  const password: string = req.body.password;
+
+  if (await authenticateUser(username, password)) {
+    res.status(200).send("Hello update!\n");
+  } else {
+    res.status(401).send("Invalid username or password\n");
+  }
 }
 
 export async function deleteUser(req: Request, res: Response): Promise<void> {
   res.send("Goodbye user!\n");
+}
+function aunthenticateUser(username: any, password: any) {
+  throw new Error("Function not implemented.");
 }

@@ -1,5 +1,6 @@
 // Implement functions for validating username and password strings
 
+import { Database } from "sqlite3";
 import { userIsAuthenticated } from "./encryption.js";
 import { db } from "./index.js";
 import { User } from "./models.js";
@@ -50,16 +51,21 @@ export async function authenticateUser(
   password: string
 ): Promise<boolean> {
   return new Promise((resolve, reject) => {
-    db.get("SELECT * FROM user WHERE username = ?", username, (err, row) => {
-      if (err) {
-        reject(err);
-      }
+    db.get(
+      "SELECT id, username, password FROM user WHERE username = ?",
+      username,
+      (err, row) => {
+        if (err) {
+          reject(err);
+        }
 
-      if (row && "password" in <Object>row) {
-        resolve(userIsAuthenticated(password, <Object>row.password));
-      }
+        if (row && "password" in <User>row) {
+          console.log((<User>row).password);
+          resolve(userIsAuthenticated(password, (<User>row).password));
+        }
 
-      resolve(false);
-    });
+        resolve(false);
+      }
+    );
   });
 }
