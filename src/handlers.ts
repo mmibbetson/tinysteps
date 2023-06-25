@@ -6,6 +6,7 @@ import {
   authenticateUser,
   parseBasicAuthHeader,
   passwordIsValid,
+  songAlreadyPresent,
   usernameIsTaken,
   usernameIsValid,
   validateProgressionBody,
@@ -172,7 +173,38 @@ export async function deleteProgression(
   req: Request,
   res: Response
 ): Promise<void> {
-  res.send("Goodbye progression!\n");
+  if (!req.headers.authorization) {
+    res.status(401).send("Authorization header required\n");
+  }
+
+  if (!req.params.name) {
+    res.status(400).send("Bad request, please provide a progression name\n");
+  }
+
+  const credentials = parseBasicAuthHeader(req.headers.authorization!);
+
+  if (await authenticateUser(credentials.username, credentials.password)) {
+    if (!(await songAlreadyPresent(credentials.username, req.params.name))) {
+      res.status(404).send("Progression not found\n");
+    }
+
+    db.serialize(() => {
+      db.run(
+        "DELETE FROM progression WHERE name = ? AND user_id = (SELECT id FROM user WHERE username = ?)",
+        [req.params.name, credentials.username],
+        (err) => {
+          if (err) {
+            console.error("Query failure:", err);
+            res.status(500).send("Internal server error\n");
+          }
+
+          res.status(200).send("Progression successfully deleted\n");
+        }
+      );
+    });
+  } else {
+    res.status(401).send("Unauthorized\n");
+  }
 }
 
 // This endpoint is exceptional because it does not require authentication
@@ -256,33 +288,4 @@ export async function deleteUser(req: Request, res: Response): Promise<void> {
   } else {
     res.status(401).send("Invalid username or password\n");
   }
-}
-
-// MOVE THIS FUNCTION
-export async function songAlreadyPresent(
-  username: string,
-  name: string
-): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    db.serialize(() => {
-      db.get(
-        "SELECT progression.name FROM progression INNER JOIN user ON progression.user_id = user.id WHERE username = ? AND progression.name = ?",
-        [username, name],
-        (err, row) => {
-          if (err) {
-            console.error("Query failure:", err);
-            reject(err);
-          }
-
-          if (row !== undefined) {
-            console.log(true);
-            resolve(true);
-          } else {
-            console.log(false);
-            resolve(false);
-          }
-        }
-      );
-    });
-  });
 }

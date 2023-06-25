@@ -144,3 +144,31 @@ export function validateProgressionBody(body: Progression["body"]): boolean {
 
   return true;
 }
+
+export async function songAlreadyPresent(
+  username: string,
+  name: string
+): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.get(
+        "SELECT progression.name FROM progression INNER JOIN user ON progression.user_id = user.id WHERE username = ? AND progression.name = ?",
+        [username, name],
+        (err, row) => {
+          if (err) {
+            console.error("Query failure:", err);
+            reject(err);
+          }
+
+          if (row !== undefined) {
+            console.log(true);
+            resolve(true);
+          } else {
+            console.log(false);
+            resolve(false);
+          }
+        }
+      );
+    });
+  });
+}
