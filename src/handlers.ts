@@ -83,7 +83,7 @@ export async function getProgressionByUser(
   if (await authenticateUser(credentials.username, credentials.password)) {
     db.serialize(() => {
       db.all(
-        "SELECT name, body FROM progression WHERE user = ?",
+        "SELECT name FROM progression WHERE user = ?",
         credentials.username,
         (err, rows) => {
           if (err) {
@@ -116,6 +116,10 @@ export async function postProgression(
       .send("Request body must contain name and body fields for progression\n");
   }
 
+  if (!validateProgressionBody(req.body.body)) {
+    res.status(400).send("Progression body is invalid\n");
+  }
+
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
 
   if (await authenticateUser(credentials.username, credentials.password)) {
@@ -123,7 +127,7 @@ export async function postProgression(
       "INSERT INTO progression (name, body, user_id) VALUES (?, ?, ?)",
       [
         req.body.name,
-        validateProgressionBody(req.body.body),
+        JSON.stringify(req.body.body),
         await getUserID(credentials.username),
       ],
       (err) => {
