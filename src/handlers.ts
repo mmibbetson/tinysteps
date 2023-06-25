@@ -10,6 +10,7 @@ import {
   usernameIsValid,
   validateProgressionBody,
 } from "./validation.js";
+import { Progression } from "./models.js";
 
 // TODO: Add some documentation for this stuff
 export async function getProgression(
@@ -73,6 +74,11 @@ export async function getProgressionByName(
           }
 
           if (row !== undefined) {
+            (<Progression>row).body = JSON.parse(
+              // Assert row has body, convert to unknown so that it can be cast to string
+              // typescript refuses casting to string directly
+              <string>(<unknown>(<Progression>row).body)
+            );
             res.status(200).json(row);
           } else {
             res.status(404).send("Progression not found\n");
