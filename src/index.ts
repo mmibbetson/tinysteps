@@ -19,6 +19,11 @@ import { dirname } from "path";
 
   I had one edge case where I had to explicitly return to stop control flow
   after sending a response. Need to see if it's necessary elsewhere
+
+  ALSO: Need to add some documentation for the API
+  ALSO: Want to tweak the generator itself, maybe add some more options
+  ALSO: Improve comments and structure
+  ALSO: Consider refactors (later)
 */
 
 const app = express();
