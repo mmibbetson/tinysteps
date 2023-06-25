@@ -40,9 +40,9 @@ export const db = new sqlite3.Database(dbPath, (err) => {
 // API routes
 // Progression-related routes
 app.get("/api/progression", getProgression);
-app.get("/api/progression/name/:name", getProgressionByName); // NOT DONE
-app.get("/api/progression/user/", getProgressionByUser); // UNTESTED
-app.post("/api/progression", postProgression); // NOT DONE
+app.get("/api/progression/name/:name", getProgressionByName); // NOT TESTED
+app.get("/api/progression/user/", getProgressionByUser);
+app.post("/api/progression", postProgression);
 app.delete("/api/progression", deleteProgression); // NOT DONE
 
 // User-related routes

@@ -18,7 +18,7 @@ export async function getProgression(
   res: Response
 ): Promise<void> {
   if (!req.headers.authorization) {
-    res.status(401).send("Unauthorized");
+    res.status(401).send("Authorization header required\n");
   }
 
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
@@ -37,13 +37,12 @@ export async function getProgression(
       .then((body) => body)
       .catch((err) => {
         console.error(err);
-
-        res.status(500).send("Internal server error");
+        res.status(500).send("Internal server error\n");
       });
 
     res.status(200).json(body);
   } else {
-    res.status(401).send("Unauthorized");
+    res.status(401).send("Unauthorized\n");
   }
 }
 
@@ -53,20 +52,38 @@ export async function getProgressionByName(
   req: Request,
   res: Response
 ): Promise<void> {
-  db.get(
-    "SELECT * FROM progression WHERE id = ?",
-    req.params.id,
-    (err, row) => {
-      if (err) {
-        console.error("Query failure:", err);
-        res.status(500).send("Query failure");
-      }
+  if (!req.headers.authorization) {
+    res.status(401).send("Authorization header required\n");
+  }
 
-      if (row) {
-        res.status(200).json(row);
-      }
-    }
-  );
+  if (!req.params.name) {
+    res.status(400).send("Bad request, please provide a progression name\n");
+  }
+
+  const credentials = parseBasicAuthHeader(req.headers.authorization!);
+
+  if (await authenticateUser(credentials.username, credentials.password)) {
+    db.serialize(() => {
+      db.get(
+        "SELECT progression.name, progression.body FROM progression INNER JOIN user ON progression.user_id = user.id WHERE username = ? AND progression.name = ?",
+        [credentials.username, req.params.name],
+        (err, row) => {
+          if (err) {
+            console.error("Query failure:", err);
+            res.status(500).send("Internal server error\n");
+          }
+
+          if (row !== undefined) {
+            res.status(200).json(row);
+          } else {
+            res.status(404).send("Progression not found\n");
+          }
+        }
+      );
+    });
+  } else {
+    res.status(401).send("Unauthorized\n");
+  }
 }
 
 // Return list of progression names for a given user
@@ -75,7 +92,7 @@ export async function getProgressionByUser(
   res: Response
 ): Promise<void> {
   if (!req.headers.authorization) {
-    res.status(401).send("Unauthorized");
+    res.status(401).send("Authorization header required\n");
   }
 
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
@@ -83,12 +100,12 @@ export async function getProgressionByUser(
   if (await authenticateUser(credentials.username, credentials.password)) {
     db.serialize(() => {
       db.all(
-        "SELECT name FROM progression WHERE user = ?",
+        "SELECT progression.name FROM progression INNER JOIN user ON progression.user_id = user.id WHERE username = ?",
         credentials.username,
         (err, rows) => {
           if (err) {
             console.error("Query failure:", err);
-            res.status(500).send("Query failure");
+            res.status(500).send("Internal server error\n");
           }
 
           if (rows) {
@@ -98,7 +115,7 @@ export async function getProgressionByUser(
       );
     });
   } else {
-    res.status(401).send("Unauthorized");
+    res.status(401).send("Unauthorized\n");
   }
 }
 
@@ -107,7 +124,7 @@ export async function postProgression(
   res: Response
 ): Promise<void> {
   if (!req.headers.authorization) {
-    res.status(401).send("Authorization header must be provided\n");
+    res.status(401).send("Authorization header required\n");
   }
 
   if (!req.body.name || !req.body.body) {
@@ -123,21 +140,26 @@ export async function postProgression(
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
 
   if (await authenticateUser(credentials.username, credentials.password)) {
-    db.run(
-      "INSERT INTO progression (name, body, user_id) VALUES (?, ?, ?)",
-      [
-        req.body.name,
-        JSON.stringify(req.body.body),
-        await getUserID(credentials.username),
-      ],
-      (err) => {
-        if (err) {
-          res.status(500).send("Internal server error");
-        }
+    db.serialize(async () => {
+      db.run(
+        "INSERT INTO progression (name, body, user_id) VALUES (?, ?, ?)",
+        [
+          req.body.name,
+          JSON.stringify(req.body.body),
+          await getUserID(credentials.username),
+        ],
+        (err) => {
+          if (err) {
+            console.error("Query failure:", err);
+            res.status(500).send("Internal server error\n");
+          }
 
-        res.status(201).send("New progression successfully saved\n");
-      }
-    );
+          res.status(201).send("New progression successfully saved\n");
+        }
+      );
+    });
+  } else {
+    res.status(401).send("Unauthorized\n");
   }
 }
 
@@ -182,28 +204,32 @@ export async function postUser(req: Request, res: Response): Promise<void> {
     res.status(400).send("Username is already taken\n");
   }
 
-  db.run("INSERT INTO user (username, password) VALUES (?, ?)", [
-    username,
-    hashPassword(password!),
-  ]);
+  db.serialize(() => {
+    db.run("INSERT INTO user (username, password) VALUES (?, ?)", [
+      username,
+      hashPassword(password!),
+    ]);
+  });
 
   res.status(201).send("New user account successfully created\n");
 }
 
 export async function patchUser(req: Request, res: Response): Promise<void> {
   if (!req.headers.authorization) {
-    res.status(401).send("Authorization header must be provided\n");
+    res.status(401).send("Authorization header required\n");
   }
 
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
 
   if (await authenticateUser(credentials.username, credentials.password)) {
-    db.run("UPDATE user SET password = ? WHERE username = ?", [
-      hashPassword(req.body.newPassword),
-      credentials.username,
-    ]);
+    db.serialize(() => {
+      db.run("UPDATE user SET password = ? WHERE username = ?", [
+        hashPassword(req.body.newPassword),
+        credentials.username,
+      ]);
 
-    res.status(200).send("Password successfully updated\n");
+      res.status(200).send("Password successfully updated\n");
+    });
   } else {
     res.status(401).send("Invalid username or password\n");
   }
@@ -211,15 +237,17 @@ export async function patchUser(req: Request, res: Response): Promise<void> {
 
 export async function deleteUser(req: Request, res: Response): Promise<void> {
   if (!req.headers.authorization) {
-    res.status(401).send("Authorization header must be provided\n");
+    res.status(401).send("Authorization header required\n");
   }
 
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
 
   if (await authenticateUser(credentials.username, credentials.password)) {
-    db.run("DELETE FROM user WHERE username = ?", [credentials.username]);
+    db.serialize(() => {
+      db.run("DELETE FROM user WHERE username = ?", [credentials.username]);
 
-    res.status(200).send("User successfully deleted\n");
+      res.status(200).send("User successfully deleted\n");
+    });
   } else {
     res.status(401).send("Invalid username or password\n");
   }
