@@ -1,4 +1,5 @@
 import express from "express";
+import rateLimit from "express-rate-limit";
 import {
   getProgression,
   getProgressionByUser,
@@ -26,9 +27,18 @@ import { dirname } from "path";
   ALSO: Consider refactors (later)
 */
 
+// Rate limiter to prevent spamming or cost incursion
+// 1 minute window, 60 requests per minute for now
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 60, // 60 requests per minute
+  message: "Too many requests, please try again later.",
+});
+
 const app = express();
 app.set("json spaces", 2); // Prettify JSON output
 app.use(express.json({ limit: "12kb" })); // Parse received JSON bodies
+app.use(limiter); // Apply rate limiter
 const port: number = 8080; // default port to listen
 
 // db access, first get the path to the db and then open it

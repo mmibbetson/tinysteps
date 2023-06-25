@@ -1,41 +1,145 @@
-# tinysteps
+# TinySteps
 
-chord progression generator API and Webapp using Express and React.
-Currently only planning to generate major and minor scales with extensions
-up to thirteenth, by thirds. May consider adding sus chords and modes, etc.
-in the future
+TinySteps is an API for generating chord progressions. It can be used for songwriting,
+practice, or just to quickly cook up something to jam over. TinySteps is built using
+TypeScript, Node.js, Express, and SQLite3.
+
+## Base URL
+
+The base URL for TinySteps is `https://tinysteps.com` (not yet live).
 
 ## Authentication
 
-Basic auth with username:password accounts in express.
-http for now, perhaps when getting hosting done I can
-get https certs and set that up?
+In order to use most of the endpoints of the API, it is required that you have an account.
+To create one, submit a POST request to `/api/user` with a JSON body containing a username
+and password. For further requests you will need to include a header with the key `Authorization` and the value `Basic username:password`, where `username` and `password` are the credentials you created, and the `username:password` substring is base64 encoded.
 
 ## Rate Limiting
 
-Nothing planned immediately but before I do any major sharing
-of the tool I will implement it
+Currently, TinySteps is rate limited to 60 requests per minute globally.
+As TinySteps is still in a nascent state, this is subject to change.
 
 ## Endpoints
 
-### /api/progression
+### Generate Progression
 
-- GET: returns a randomly generated chord progression as JSON
-  - Query Parameters: root, quality, extension, length
-  - Param Defaults: C, major, triad, 4 //NOTE: when supplying a sharpened root, use %23 instead of #
-- POST: ...
+- URL: `/api/progression`
+- Method: `GET`
+- URL Parameters:
+  - `root=[string]` (Defaults to C)
+  - `quality=[string]` (Defaults to major)
+  - `length=[integer]` (Defaults to 4)
+  - `extension=[string]` (Defaults to triad)
 
-### /api/progression/id/:id
+> Please see the [Chord Generation](#chord-generation) section for info
+> on the possible valid values for each parameter.
 
-- GET: returns all saved progressions for a user as JSON
-- POST: saves a progression in JSON format to their songbook
+#### Request
 
-### /api/progression/id/:user
+`http://tinysteps.com/api/progression?root=C&quality=major&length=4&extension=triad`
 
-- GET: returns a specific progression as JSON from a songbook
+#### Response
 
-### /api/user
+| Status Code | Description  |
+| ----------- | ------------ |
+| 200         | OK           |
+| 401         | Unauthorized |
+| 500         | Server Error |
 
-- POST:
-- PATCH:
-- DELETE:
+```json
+[
+  {
+    "root": "G",
+    "suffix": "",
+    "function": "dominant",
+    "extension": "triad"
+  },
+  {
+    "root": "C",
+    "suffix": "",
+    "function": "tonic",
+    "extension": "triad"
+  },
+  {
+    "root": "G",
+    "suffix": "",
+    "function": "dominant",
+    "extension": "triad"
+  },
+  {
+    "root": "E",
+    "suffix": "m",
+    "function": "tonic",
+    "extension": "triad"
+  }
+]
+```
+
+### Save Progression
+
+- URL: `/api/progression`
+- Method: `POST`
+- URL Parameters: None
+- Body Parameters:
+  - `name=[string]` (Required)
+  - `progression=[array]` (Required)
+
+#### Request
+
+`http://tinysteps.com/api/progression`
+
+```json
+{
+  "name": "Example Progression",
+  "body": [
+    {
+      "root": "G",
+      "suffix": "",
+      "function": "dominant",
+      "extension": "triad"
+    },
+    {
+      "root": "C",
+      "suffix": "",
+      "function": "tonic",
+      "extension": "triad"
+    },
+    {
+      "root": "G",
+      "suffix": "",
+      "function": "dominant",
+      "extension": "triad"
+    },
+    {
+      "root": "E",
+      "suffix": "m",
+      "function": "tonic",
+      "extension": "triad"
+    }
+  ]
+}
+```
+
+#### Response
+
+| Status Code | Description  |
+| ----------- | ------------ |
+| 201         | Created      |
+| 400         | Bad Request  |
+| 401         | Unauthorized |
+| 409         | Conflict     |
+| 500         | Server Error |
+
+### Get List of Saved Progressions
+
+### Get Saved Progression
+
+### Delete Saved Progression
+
+### Create User
+
+### Update User Password
+
+### Delete User
+
+## Chord Generation
