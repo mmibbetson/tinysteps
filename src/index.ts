@@ -1,13 +1,13 @@
 import express from "express";
 import {
   getProgression,
-  getProgressionByID,
   getProgressionByUser,
   postProgression,
   deleteProgression,
   postUser,
   patchUser,
   deleteUser,
+  getProgressionByName,
 } from "./handlers.js";
 import sqlite3 from "sqlite3";
 import { fileURLToPath } from "url";
@@ -19,8 +19,8 @@ import { dirname } from "path";
 */
 
 const app = express();
-app.set("json spaces", 2); // Pretty-print JSON
-app.use(express.json()); // Parse JSON bodies
+app.set("json spaces", 2); // Prettify JSON output
+app.use(express.json()); // Parse received JSON bodies
 const port: number = 8080; // default port to listen
 
 // db access, first get the path to the db and then open it
@@ -37,7 +37,7 @@ export const db = new sqlite3.Database(dbPath, (err) => {
 // API routes
 // Progression-related routes
 app.get("/api/progression", getProgression);
-app.get("/api/progression/id/:id", getProgressionByID); // NOT DONE
+app.get("/api/progression/name/:name", getProgressionByName); // NOT DONE
 app.get("/api/progression/user/:user", getProgressionByUser); // UNTESTED
 app.post("/api/progression", postProgression); // NOT DONE
 app.delete("/api/progression", deleteProgression); // NOT DONE

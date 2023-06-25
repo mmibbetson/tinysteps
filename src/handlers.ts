@@ -4,11 +4,12 @@ import { db } from "./index.js";
 import { hashPassword } from "./encryption.js";
 import {
   authenticateUser,
+  getUserID,
   parseBasicAuthHeader,
   passwordIsValid,
   usernameIsTaken,
   usernameIsValid,
-} from "./user-validation.js";
+} from "./validation.js";
 
 // TODO: Add some documentation for this stuff
 export async function getProgression(
@@ -45,7 +46,9 @@ export async function getProgression(
   }
 }
 
-export async function getProgressionByID(
+// Return a progression name and body for a user
+// Only if the user is the owner of the progression
+export async function getProgressionByName(
   req: Request,
   res: Response
 ): Promise<void> {
@@ -65,6 +68,7 @@ export async function getProgressionByID(
   );
 }
 
+// Return list of progression names for a given user
 export async function getProgressionByUser(
   req: Request,
   res: Response
@@ -101,7 +105,24 @@ export async function postProgression(
   req: Request,
   res: Response
 ): Promise<void> {
-  res.send("Hello new progression!\n");
+  if (!req.headers.authorization) {
+    res.status(401).send("Authorization header must be provided\n");
+  }
+
+  if (!req.body.name || !req.body.body) {
+    res.status(400).send("Request body must contain name and body fields for progression\n");
+  }
+
+  const credentials = parseBasicAuthHeader(req.headers.authorization!);
+
+  if (await authenticateUser(credentials.username, credentials.password)) {
+    db.run("INSERT INTO progression (name, body, user_id) VALUES (?, ?, ?)", [req.body.name, validateProgressionBody(req.body.body), await getUserID(credentials.username)], (err) => {
+      if (err) {
+        res.status(500).send("Internal server error");
+      }
+
+      res.status(201).send("New progression successfully saved\n");
+  }
 }
 
 export async function deleteProgression(

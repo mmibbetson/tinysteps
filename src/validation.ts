@@ -2,7 +2,7 @@
 
 import { passwordsMatch } from "./encryption.js";
 import { db } from "./index.js";
-import { User } from "./models.js";
+import { Progression, User } from "./models.js";
 
 export function usernameIsValid(username: string): boolean {
   // username must be between 4 and 20 characters
@@ -80,3 +80,22 @@ export function parseBasicAuthHeader(authHeader: string): {
 
   return { username, password };
 }
+
+export async function getUserID(username: string): Promise<number> {
+  return new Promise((resolve, reject) => {
+    db.get("SELECT id FROM user WHERE username = ?", username, (err, row) => {
+      if (err) {
+        reject(err);
+      }
+
+      if (row && "id" in <User>row) {
+        resolve((<User>row).id);
+      }
+
+      reject("User not found");
+    });
+  });
+}
+
+// Need to check that the body received actually fits the constraints of the API
+// export function validateProgressionBody(body: Progression["body"]): boolean {}
