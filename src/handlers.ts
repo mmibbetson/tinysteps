@@ -9,6 +9,7 @@ import {
   passwordIsValid,
   usernameIsTaken,
   usernameIsValid,
+  validateProgressionBody,
 } from "./validation.js";
 
 // TODO: Add some documentation for this stuff
@@ -110,18 +111,29 @@ export async function postProgression(
   }
 
   if (!req.body.name || !req.body.body) {
-    res.status(400).send("Request body must contain name and body fields for progression\n");
+    res
+      .status(400)
+      .send("Request body must contain name and body fields for progression\n");
   }
 
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
 
   if (await authenticateUser(credentials.username, credentials.password)) {
-    db.run("INSERT INTO progression (name, body, user_id) VALUES (?, ?, ?)", [req.body.name, validateProgressionBody(req.body.body), await getUserID(credentials.username)], (err) => {
-      if (err) {
-        res.status(500).send("Internal server error");
-      }
+    db.run(
+      "INSERT INTO progression (name, body, user_id) VALUES (?, ?, ?)",
+      [
+        req.body.name,
+        validateProgressionBody(req.body.body),
+        await getUserID(credentials.username),
+      ],
+      (err) => {
+        if (err) {
+          res.status(500).send("Internal server error");
+        }
 
-      res.status(201).send("New progression successfully saved\n");
+        res.status(201).send("New progression successfully saved\n");
+      }
+    );
   }
 }
 
@@ -136,8 +148,14 @@ export async function deleteProgression(
 // Will handle potential insecurities via rate limiting
 export async function postUser(req: Request, res: Response): Promise<void> {
   // Check that the username and password are valid first
-  const username = req.body.username;
-  const password = req.body.password;
+  const username = req.body.username ? req.body.username : null;
+  const password = req.body.password ? req.body.password : null;
+
+  if (!username || !password) {
+    res.status(400).send("Request body must contain username and password\n");
+
+    return;
+  }
 
   if (!usernameIsValid(username)) {
     res

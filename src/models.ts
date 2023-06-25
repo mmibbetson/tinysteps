@@ -80,3 +80,5 @@ export const suffixes = [
   "13",
   "m13b5",
 ];
+
+export const functions = ["tonic", "subdominant", "dominant"];

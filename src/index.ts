@@ -16,6 +16,9 @@ import { dirname } from "path";
 /*
   TODO: Check EVERY error case and make sure it's handled properly,
   right now there are a lot of cases where the server will crash
+
+  I had one edge case where I had to explicitly return to stop control flow
+  after sending a response. Need to see if it's necessary elsewhere
 */
 
 const app = express();

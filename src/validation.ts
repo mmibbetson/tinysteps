@@ -2,7 +2,14 @@
 
 import { passwordsMatch } from "./encryption.js";
 import { db } from "./index.js";
-import { Progression, User } from "./models.js";
+import {
+  Progression,
+  User,
+  extensions,
+  functions,
+  roots,
+  suffixes,
+} from "./models.js";
 
 export function usernameIsValid(username: string): boolean {
   // username must be between 4 and 20 characters
@@ -98,4 +105,42 @@ export async function getUserID(username: string): Promise<number> {
 }
 
 // Need to check that the body received actually fits the constraints of the API
-// export function validateProgressionBody(body: Progression["body"]): boolean {}
+export function validateProgressionBody(body: Progression["body"]): boolean {
+  // check that body is an array
+  if (!Array.isArray(body)) {
+    return false;
+  }
+
+  // check that body is within the length delimiters
+  if (body.length < 4 || body.length > 16) {
+    return false;
+  }
+
+  // check that each item in the array is an object with the correct fields
+  body.forEach((chord) => {
+    if (typeof chord !== "object") {
+      return false;
+    }
+
+    if (
+      chord.root === undefined ||
+      chord.suffix === undefined ||
+      chord.extension === undefined ||
+      chord.function === undefined
+    ) {
+      return false;
+    }
+
+    // ensure that the values of each field are within the valid values for that field
+    if (
+      !roots.some((root) => root === chord.root) ||
+      !suffixes.some((suffix) => suffix === chord.suffix) ||
+      !extensions.some((extension) => extension === chord.extension) ||
+      !functions.some((func) => func === chord.function)
+    ) {
+      return false;
+    }
+  });
+
+  return true;
+}
