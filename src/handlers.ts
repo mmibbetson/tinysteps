@@ -4,7 +4,6 @@ import { db } from "./index.js";
 import { hashPassword } from "./encryption.js";
 import {
   authenticateUser,
-  getUserID,
   parseBasicAuthHeader,
   passwordIsValid,
   usernameIsTaken,
@@ -140,24 +139,24 @@ export async function postProgression(
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
 
   if (await authenticateUser(credentials.username, credentials.password)) {
-    db.serialize(async () => {
-      db.run(
-        "INSERT INTO progression (name, body, user_id) VALUES (?, ?, ?)",
-        [
-          req.body.name,
-          JSON.stringify(req.body.body),
-          await getUserID(credentials.username),
-        ],
-        (err) => {
-          if (err) {
-            console.error("Query failure:", err);
-            res.status(500).send("Internal server error\n");
-          }
+    if (await songAlreadyPresent(credentials.username, req.body.name)) {
+      res.status(409).send("Progression already exists\n");
+    } else {
+      db.serialize(() => {
+        db.run(
+          "INSERT INTO progression (name, body, user_id) VALUES (?, ?, (SELECT id FROM user WHERE username = ?))",
+          [req.body.name, JSON.stringify(req.body.body), credentials.username],
+          (err) => {
+            if (err) {
+              console.error("Query failure:", err);
+              res.status(500).send("Internal server error\n");
+            }
 
-          res.status(201).send("New progression successfully saved\n");
-        }
-      );
-    });
+            res.status(201).send("New progression successfully saved\n");
+          }
+        );
+      });
+    }
   } else {
     res.status(401).send("Unauthorized\n");
   }
@@ -251,4 +250,33 @@ export async function deleteUser(req: Request, res: Response): Promise<void> {
   } else {
     res.status(401).send("Invalid username or password\n");
   }
+}
+
+// MOVE THIS FUNCTION
+export async function songAlreadyPresent(
+  username: string,
+  name: string
+): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    db.serialize(() => {
+      db.get(
+        "SELECT progression.name FROM progression INNER JOIN user ON progression.user_id = user.id WHERE username = ? AND progression.name = ?",
+        [username, name],
+        (err, row) => {
+          if (err) {
+            console.error("Query failure:", err);
+            reject(err);
+          }
+
+          if (row !== undefined) {
+            console.log(true);
+            resolve(true);
+          } else {
+            console.log(false);
+            resolve(false);
+          }
+        }
+      );
+    });
+  });
 }

@@ -23,7 +23,7 @@ import { dirname } from "path";
 
 const app = express();
 app.set("json spaces", 2); // Prettify JSON output
-app.use(express.json()); // Parse received JSON bodies
+app.use(express.json({ limit: "12kb" })); // Parse received JSON bodies
 const port: number = 8080; // default port to listen
 
 // db access, first get the path to the db and then open it
