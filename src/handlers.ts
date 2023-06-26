@@ -131,12 +131,22 @@ export async function postProgression(
 ): Promise<void> {
   if (!req.headers.authorization) {
     res.status(401).send("Authorization header required\n");
+
+    return;
   }
 
   if (!req.body.name || !req.body.body) {
     res
       .status(400)
       .send("Request body must contain name and body fields for progression\n");
+
+    return;
+  }
+
+  if (req.body.name.length > 40 || req.body.name.length < 4) {
+    res.status(400).send("Progression name must be less than 24 characters\n");
+
+    return;
   }
 
   if (!validateProgressionBody(req.body.body)) {
@@ -177,10 +187,14 @@ export async function deleteProgression(
 ): Promise<void> {
   if (!req.headers.authorization) {
     res.status(401).send("Authorization header required\n");
+
+    return;
   }
 
   if (!req.params.name) {
     res.status(400).send("Bad request, please provide a progression name\n");
+
+    return;
   }
 
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
@@ -188,6 +202,8 @@ export async function deleteProgression(
   if (await authenticateUser(credentials.username, credentials.password)) {
     if (!(await songAlreadyPresent(credentials.username, req.params.name))) {
       res.status(404).send("Progression not found\n");
+
+      return;
     }
 
     db.serialize(() => {
@@ -262,16 +278,22 @@ export async function postUser(req: Request, res: Response): Promise<void> {
 export async function patchUser(req: Request, res: Response): Promise<void> {
   if (!req.headers.authorization) {
     res.status(401).send("Authorization header required\n");
+
+    return;
   }
 
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
 
   if (!req.body.newPassword) {
     res.status(400).send("Request body must contain newPassword field\n");
+
+    return;
   }
 
   if (!passwordIsValid(req.body.newPassword)) {
     res.status(400).send("Invalid new password\n");
+
+    return;
   }
 
   if (await authenticateUser(credentials.username, credentials.password)) {
@@ -291,6 +313,8 @@ export async function patchUser(req: Request, res: Response): Promise<void> {
 export async function deleteUser(req: Request, res: Response): Promise<void> {
   if (!req.headers.authorization) {
     res.status(401).send("Authorization header required\n");
+
+    return;
   }
 
   const credentials = parseBasicAuthHeader(req.headers.authorization!);

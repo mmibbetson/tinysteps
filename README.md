@@ -86,9 +86,13 @@ As TinySteps is still in a nascent state, this is subject to change.
 - Method: `POST`
 - URL Parameters: None
 - Body Parameters:
-
   - `name=[string]` (Required)
   - `progression=[array]` (Required)
+
+> Please note that the name must be unique to your account, and
+> between 4 and 40 characters long. The progression must be between
+> 4 and 16 chords long, and each chord must match the format of those
+> returned by the [Generate Progression](#generate-progression) endpoint.
 
 #### Request
 
