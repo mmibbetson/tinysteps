@@ -2,7 +2,7 @@
 
 TinySteps is an API for generating chord progressions. It can be used for songwriting,
 practice, or just to quickly cook up something to jam over. TinySteps is built using
-TypeScript, Node.js, Express, and SQLite3.
+TypeScript, Node, Express, and SQLite3.
 
 ## Base URL
 
