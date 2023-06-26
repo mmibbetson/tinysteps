@@ -198,7 +198,7 @@ export async function deleteProgression(
             res.status(500).send("Internal server error\n");
           }
 
-          res.status(200).send("Progression successfully deleted\n");
+          res.status(204).send("Progression successfully deleted\n");
         }
       );
     });
@@ -238,7 +238,7 @@ export async function postUser(req: Request, res: Response): Promise<void> {
 
   // Check that the username is not already taken
   if (await usernameIsTaken(req.body.username)) {
-    res.status(400).send("Username is already taken\n");
+    res.status(409).send("Username is already taken\n");
   }
 
   db.serialize(() => {
@@ -257,6 +257,14 @@ export async function patchUser(req: Request, res: Response): Promise<void> {
   }
 
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
+
+  if (!req.body.newPassword) {
+    res.status(400).send("Request body must contain newPassword field\n");
+  }
+
+  if (!passwordIsValid(req.body.newPassword)) {
+    res.status(400).send("Invalid new password\n");
+  }
 
   if (await authenticateUser(credentials.username, credentials.password)) {
     db.serialize(() => {
@@ -283,7 +291,7 @@ export async function deleteUser(req: Request, res: Response): Promise<void> {
     db.serialize(() => {
       db.run("DELETE FROM user WHERE username = ?", [credentials.username]);
 
-      res.status(200).send("User successfully deleted\n");
+      res.status(204).send("User successfully deleted\n");
     });
   } else {
     res.status(401).send("Invalid username or password\n");
