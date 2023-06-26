@@ -6,13 +6,9 @@ TypeScript, Node, Express, and SQLite3.
 
 ## Base URL
 
----
-
 The base URL for TinySteps is `https://tinysteps.com` (not yet live).
 
 ## Authentication
-
----
 
 In order to use most of the endpoints of the API, it is required that you have an account.
 To create one, submit a POST request to `/api/user` with a JSON body containing a username
@@ -20,14 +16,10 @@ and password. For further requests you will need to include a header with the ke
 
 ## Rate Limiting
 
----
-
 Currently, TinySteps is rate limited to 60 requests per minute globally.
 As TinySteps is still in a nascent state, this is subject to change.
 
 ## Endpoints
-
----
 
 ### Generate Progression
 
@@ -327,8 +319,6 @@ As TinySteps is still in a nascent state, this is subject to change.
 | 401         | Unauthorized |
 
 ## Chord Generation
-
----
 
 > The following are the possible values for each of the
 > parameters used in the chord generation endpoint.
