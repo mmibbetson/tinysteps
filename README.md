@@ -6,9 +6,13 @@ TypeScript, Node.js, Express, and SQLite3.
 
 ## Base URL
 
+---
+
 The base URL for TinySteps is `https://tinysteps.com` (not yet live).
 
 ## Authentication
+
+---
 
 In order to use most of the endpoints of the API, it is required that you have an account.
 To create one, submit a POST request to `/api/user` with a JSON body containing a username
@@ -16,21 +20,30 @@ and password. For further requests you will need to include a header with the ke
 
 ## Rate Limiting
 
+---
+
 Currently, TinySteps is rate limited to 60 requests per minute globally.
 As TinySteps is still in a nascent state, this is subject to change.
 
 ## Endpoints
+
+---
 
 ### Generate Progression
 
 - URL: `/api/progression`
 - Method: `GET`
 - URL Parameters:
-  - `root=[string]` (Defaults to C)
-  - `quality=[string]` (Defaults to major)
-  - `length=[integer]` (Defaults to 4)
-  - `extension=[string]` (Defaults to triad)
+  - `root=[string]`
+  - `quality=[string]`
+  - `length=[integer]`
+  - `extension=[string]`
 
+> All parameters are optional, the defaults return a 4 chord progression
+> in the key of C major, whose chords are only triads. The extension parameter
+> defines the upper limit of the chord extensions that will be used, not the
+> exact extensions that will be used.
+>
 > Please see the [Chord Generation](#chord-generation) section for info
 > on the possible valid values for each parameter.
 
@@ -314,6 +327,8 @@ As TinySteps is still in a nascent state, this is subject to change.
 | 401         | Unauthorized |
 
 ## Chord Generation
+
+---
 
 > The following are the possible values for each of the
 > parameters used in the chord generation endpoint.
