@@ -33,9 +33,10 @@ export async function generateProgressionBody(
 
     return body;
   } catch (error) {
-    console.log(error);
+    console.error(error);
 
     return [
+      // TODO: Change this to a more appropriate error response
       {
         root: "C",
         suffix: "maj",

@@ -25,6 +25,8 @@ import { dirname } from "path";
   ALSO: Want to tweak the generator itself, maybe add some more options
   ALSO: Improve comments and structure
   ALSO: Consider refactors (later)
+
+  Constrain progression string names
 */
 
 // Rate limiter to prevent spamming or cost incursion

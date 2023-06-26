@@ -88,6 +88,7 @@ export function parseBasicAuthHeader(authHeader: string): {
   return { username, password };
 }
 
+// TODO: Move this function
 export async function getUserID(username: string): Promise<number> {
   return new Promise((resolve, reject) => {
     db.get("SELECT id FROM user WHERE username = ?", username, (err, row) => {
@@ -117,7 +118,7 @@ export function validateProgressionBody(body: Progression["body"]): boolean {
   }
 
   // check that each item in the array is an object with the correct fields
-  body.forEach((chord) => {
+  for (const chord of body) {
     if (typeof chord !== "object") {
       return false;
     }
@@ -140,7 +141,7 @@ export function validateProgressionBody(body: Progression["body"]): boolean {
     ) {
       return false;
     }
-  });
+  }
 
   return true;
 }
@@ -161,10 +162,8 @@ export async function songAlreadyPresent(
           }
 
           if (row !== undefined) {
-            console.log(true);
             resolve(true);
           } else {
-            console.log(false);
             resolve(false);
           }
         }

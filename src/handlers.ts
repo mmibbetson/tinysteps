@@ -141,6 +141,8 @@ export async function postProgression(
 
   if (!validateProgressionBody(req.body.body)) {
     res.status(400).send("Progression body is invalid\n");
+
+    return;
   }
 
   const credentials = parseBasicAuthHeader(req.headers.authorization!);
@@ -226,6 +228,8 @@ export async function postUser(req: Request, res: Response): Promise<void> {
       .send(
         "Invalid username, ensure it is between 8 and 24 characters long and contains only letters and numbers\n"
       );
+
+    return;
   }
 
   if (!passwordIsValid(password)) {
@@ -234,11 +238,15 @@ export async function postUser(req: Request, res: Response): Promise<void> {
       .send(
         "Invalid password, ensure it is between 8 and 24 characters long\n"
       );
+
+    return;
   }
 
   // Check that the username is not already taken
   if (await usernameIsTaken(req.body.username)) {
     res.status(409).send("Username is already taken\n");
+
+    return;
   }
 
   db.serialize(() => {
