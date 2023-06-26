@@ -239,7 +239,7 @@ As TinySteps is still in a nascent state, this is subject to change.
 
 #### Request
 
-`http://tinysteps.com/api/progression/name/Test%20Progression`
+`http://tinysteps.com/api/progression/name/Tprog2`
 
 #### Response
 
