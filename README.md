@@ -6,7 +6,7 @@ TypeScript, Node, Express, and SQLite3.
 
 ## Base URL
 
-The base URL for TinySteps is `https://tinysteps.com` (not yet live).
+Currently, Tiny Steps is in a proof-of-concept stage and is not hosted publicly.
 
 ## Authentication
 
