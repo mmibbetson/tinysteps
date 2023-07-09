@@ -8,9 +8,25 @@ TinySteps is an API for generating chord progressions based on western functiona
 practice, or just to quickly cook up something to jam over. TinySteps is built using
 TypeScript, Node, Express, and SQLite3.
 
+In the db/ folder, you will find a SQLite3 database file which is already initialised with the required data for the
+functioning of the API, as well as two sql files which can be used to create the database from scratch, or to reset it.
+in src/ you will find the TypeScript source code for the API, and in dist/ you will find the compiled JavaScript code.
+
+In src/ index.ts is the entry point for the API, and it contains the Express server setup, as well as the endpoints.
+These endpoints all call functions that are writetn in handlers.ts, and where those functions call specific related behaviours,
+those related functions are contained within the .ts files that indicate their relation (encryption/generator/validation etc.).
+models.ts contains the types, interfaces, and enums that are used throughout the API.
+
+In terms of design choices that were made that I would approach differently in the future, I would probably focus on more
+thoroughly modeling the data through the type system of the language so that I could more easily and safely manipulate it.
+I would also likely work with a language that requires less dependencies for this kind of project, such as Go.
+
+This project was created for Harvard CS50 2023's final project. Following this description is the full documentation for the API.
+
 ## Base URL
 
-Currently, Tiny Steps is in a proof-of-concept stage and is not hosted publicly.
+Currently, Tiny Steps is in a proof-of-concept stage and is not hosted publicly. You can host it directly and use it locally
+via node. The entrypoint is dist/index.js, and the server will run on port 8080 by default.
 
 ## Authentication
 

@@ -14,20 +14,6 @@ import sqlite3 from "sqlite3";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
-/*
-  TODO: Check EVERY error case and make sure it's handled properly,
-  right now there are a lot of cases where the server will crash
-
-  I had one edge case where I had to explicitly return to stop control flow
-  after sending a response. Need to see if it's necessary elsewhere
-
-  TODO: Want to tweak the generator itself, maybe add some more options
-  TODO: Improve comments and structure
-  TODO: Consider refactors (later)
-
-  Constrain progression string names
-*/
-
 // Rate limiter to prevent spamming or cost incursion
 // 1 minute window, 60 requests per minute for now
 const limiter = rateLimit({
