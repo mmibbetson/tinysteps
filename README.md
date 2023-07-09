@@ -21,7 +21,7 @@ In terms of design choices that were made that I would approach differently in t
 thoroughly modeling the data through the type system of the language so that I could more easily and safely manipulate it.
 I would also likely work with a language that requires less dependencies for this kind of project, such as Go.
 
-This project was created for Harvard CS50 2023's final project. Following this description is the full documentation for the API.
+This project was created for Harvard CS50x 2023's final project. Following this description is the full documentation for the API.
 
 ## Base URL
 
